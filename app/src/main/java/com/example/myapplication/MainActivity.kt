@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,15 +41,17 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.padding(all = 16.dp)
+        modifier = modifier
+            .padding(all = 16.dp)
             .fillMaxWidth()
             .background(color = MaterialTheme.colorScheme.surfaceDim),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Kent Bitanghol",
+            text = "Hello $name",
             textAlign = TextAlign.Center,
-            modifier = modifier.padding(all = 20.dp)
+            modifier = Modifier.padding(all = 20.dp)
         )
     }
 }
