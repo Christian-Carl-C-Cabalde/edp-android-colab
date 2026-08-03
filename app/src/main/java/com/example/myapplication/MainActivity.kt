@@ -4,21 +4,30 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+    import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
@@ -26,12 +35,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MyApplicationTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            MaterialTheme {
+                Surface {
+                    ReactiveScreen()
                 }
             }
         }
@@ -39,27 +45,63 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
+fun ReactiveScreen() {
+    // 'count' is STATE: remember keeps it across recompositions,
+    // mutableStateOf makes Compose watch it for changes.
+    var count by remember { mutableStateOf(0) }
+    var name by rememberSaveable { mutableStateOf("") }
+
+
+
     Column(
-        modifier = modifier
-            .padding(all = 16.dp)
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surfaceDim),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
+        // The greeting READS 'name', so it recomposes whenever you type.
         Text(
-            text = "Hello $name",
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(all = 20.dp)
+            text = if (name.isBlank()) "Hello, stranger!"
+            else "Hello, $name!",
+            fontSize = 26.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(Modifier.height(16.dp))
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },   // WRITE updates the state
+            label = { Text("Enter your name") }
+        )
+        Spacer(Modifier.height(32.dp))
+
+        CounterControls(
+            count = count,
+            onIncrement = { count++ },
+            onDecrement = { count-- },
+            onReset = { count = 0 }
         )
     }
 }
-
+@Composable
+fun CounterControls(
+    count: Int,                 // value flows DOWN
+    onIncrement: () -> Unit,    // events flow UP
+    onDecrement: () -> Unit,
+    onReset: () -> Unit
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = "Count: $count", fontSize = 24.sp)
+        Spacer(Modifier.height(16.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Button(onClick = onDecrement) { Text("–") }
+            Button(onClick = onReset) { Text("Reset") }
+            Button(onClick = onIncrement) { Text("+") }
+        }
+    }
+}
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun ReactiveScreenPreview() {
     MyApplicationTheme {
-        Greeting("Android")
+        ReactiveScreen()
     }
 }
