@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +22,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import com.example.myapplication.ui.theme.slideInFromBottom
+import com.example.myapplication.ui.theme.slideOutToBottom
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,11 +36,31 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
+                val navController = rememberNavController()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
+                    NavHost(
+                        navController = navController,
+                        startDestination = Home,
                         modifier = Modifier.padding(innerPadding)
-                    )
+                    ) {
+                        composable<Home> {
+                            HomeScreen(onShowGreeting = { typedName ->
+                                navController.navigate(Greeting(userName = typedName))
+                            })
+                        }
+                        composable<Greeting>(
+                            enterTransition = { slideInFromBottom },
+                            exitTransition = { slideOutToBottom },
+                            popEnterTransition = { slideInFromBottom },
+                            popExitTransition = { slideOutToBottom }
+                        ) { backStackEntry ->
+                            val greeting: Greeting = backStackEntry.toRoute()
+                            GreetingScreen(
+                                userName = greeting.userName,
+                                onBack = { navController.popBackStack() }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -40,19 +69,27 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Column(
+    Card(
         modifier = modifier
             .padding(all = 16.dp)
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surfaceDim),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        shape = MaterialTheme.shapes.large
     ) {
-        Text(
-            text = "Hello $name",
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(all = 20.dp)
-        )
+        Column(
+            modifier = Modifier.padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Hello $name!",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 
