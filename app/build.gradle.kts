@@ -51,4 +51,10 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    val lifecycleVersion = "2.10.0"
+    // Lets you call viewModel() inside a Composable
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    // Lets you use collectAsStateWithLifecycle()
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
 }
