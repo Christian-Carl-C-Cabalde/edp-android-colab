@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 class ProfileViewModel : ViewModel() {
-
     // Private, editable state — only the ViewModel changes it
     private val _uiState = MutableStateFlow(ProfileUiState())
     // Public, read-only state — the screen observes this
@@ -32,10 +31,12 @@ class ProfileViewModel : ViewModel() {
     fun onNewSkillChange(value: String) =
         _uiState.update { it.copy(newSkill = value) }
 
+
     // --- Add / remove skills ---
     fun addSkill() {
         val skill = _uiState.value.newSkill.trim()
-        if (skill.isEmpty()) return          // ignore empty input
+        // Ignore empty input or duplicates
+        if (skill.isEmpty() || _uiState.value.skills.contains(skill)) return
         _uiState.update { current ->
             current.copy(
                 skills = current.skills + skill, // new list = old + one
@@ -50,8 +51,12 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    // --- Preview toggle ---
+    // --- Actions ---
     fun showPreview() = _uiState.update { it.copy(isPreview = true) }
     fun backToEdit() = _uiState.update { it.copy(isPreview = false) }
+
+    fun clearAll() {
+        _uiState.value = ProfileUiState()
+    }
 }
 
