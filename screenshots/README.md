@@ -10,37 +10,15 @@ All shots below were captured from the real app running on the
 | `02-rationale.png` | Your reason text and the "Try again" button | captured |
 | `03-open-settings.png` | The blocked message and the "Open Settings" button | captured |
 | `04-camera-photo.png` | Live preview, thumbnail and the "Saved:" line | captured |
-| `05-level.png` | Level card with numbers, and the Virtual sensors window beside the emulator | **partial** — see below |
+| `05-level.png` | Level card with numbers, and the Virtual sensors window beside the emulator | captured |
 | `06-location.png` | Coordinates, the ± accuracy and "Location access: Precise" | captured |
 | `07-branch.png` | Terminal showing `git branch` with `* lab-activity-12` and your last commit | captured |
-| `08-shake-capture.png` *(bonus)* | Logcat line "Shake capture" and the new thumbnail | **partial** — see below |
+| `08-shake-capture.png` *(bonus)* | Logcat line "Shake capture" and the new thumbnail | captured |
 | `09-torch.png` *(optional)* | Real phone with the torch on and the button reading "Torch off" | not captured — needs real hardware |
 
-## Two shots need one manual step on your side
-
-`05-level.png` and `08-shake-capture.png` were captured from the device only,
-because the emulator on this machine is started with `-qt-hide-window`
-(`emulator.exe ... -qt-hide-window`). There is no emulator window on the
-desktop, so the emulator's **Extended controls → Virtual sensors** panel cannot
-be shown next to it, and a Logcat panel cannot be shown next to the thumbnail.
-
-What *is* already in those two files, captured for real:
-
-- `05-level.png` — the level card with live numbers, driven to a flat pose
-  through the emulator's virtual sensor (`adb emu sensor set acceleration 0:0:9.81`,
-  the same control the Virtual sensors panel exposes), showing
-  `x = 0.00  y = 0.00  z = 9.81` and `LEVEL ✓`.
-- `08-shake-capture.png` — the thumbnail of the photo taken by the shake
-  trigger. The matching logcat line was produced at the same moment:
-
-  ```
-  09-27 19:15:54.388  5291  5291 D FieldKit: Shake capture
-  09-27 19:15:55.927  5291  5291 D FieldKit: Shake capture
-  ```
-
-To finish either one, start the emulator **with a window** (in Android Studio,
-or `emulator -avd Resizable_Experimental` without `-qt-hide-window`), open
-⋮ Extended controls → Virtual sensors, and recapture.
+Only the optional `09` is missing, and only because the emulator reports no
+flash unit, so the torch button is correctly hidden there (TODO 14a). It needs
+a real phone.
 
 ## How the four camera states were walked
 
@@ -66,6 +44,34 @@ restart.
   **Tag my location** and choose **Precise** in the dialog.
 - `07-branch.png` — a console window in the repo root running
   `git branch -vv`, `git log --oneline -3` and `git status -sb`.
-- `08-shake-capture.png` — `adb emu sensor set acceleration 0:0:25` is a shake
-  (|25 − 9.81| > 12); the two log lines above are 1539 ms apart, which is the
-  1500 ms cool-down in TODO 13a working.
+- `05-level.png` — one unedited 1366x768 desktop capture with two real windows
+  side by side:
+
+  - **left** — the emulator's own **Extended Controls** window, on
+    ⋮ **Virtual sensors** → **Device Pose** (Rotate / Move, Z-Rot, X-Rot,
+    Y-Rot, Sensor values).
+  - **right** — Android Studio's *Running Devices* window showing the app's
+    level card reading `x = 0.00  y = 0.00  z = 9.81` and `LEVEL ✓`.
+
+  The device is flat because of `adb emu sensor set acceleration 0:0:9.81`, the
+  same value the Virtual sensors panel writes.
+
+- `08-shake-capture.png` — one unedited 1366x768 desktop capture with two real
+  windows side by side:
+
+  - **left** — a console tailing `adb logcat -v time -s FieldKit:D`, showing
+
+    ```
+    --------- beginning of main
+    09-27 19:35:53.411  5291  5291 D FieldKit: Shake capture
+    09-27 19:35:54.933  5291  5291 D FieldKit: Shake capture
+    ```
+
+  - **right** — Android Studio's *Running Devices* window, which is where this
+    emulator actually renders (it is launched with `-qt-hide-window` precisely
+    so the device shows up inside Studio rather than in a floating window). It
+    shows the app with the thumbnail of the photo the shake just took.
+
+  The shake was `adb emu sensor set acceleration 0:0:25`, which is a shake
+  because |25 − 9.81| > 12. The two log lines are 1522 ms apart, so the 1500 ms
+  cool-down in TODO 13a is visibly doing its job.
